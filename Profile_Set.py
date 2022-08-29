@@ -371,7 +371,6 @@ class Profile_Set():
 
     def save_netCDF(self, file_path):
         """
-        This was already in the profile_set code but I altered it
         Stores all attributes of this Profile_Set object as a NetCDF
 
         :param string file_path: the file name to which attributes should be
@@ -385,7 +384,10 @@ class Profile_Set():
         f_name = os.path.join(os.path.dirname(file_path), file_name)
         main_file = netCDF4.Dataset(f_name,
                                     "w", format="NETCDF4", mmap=False)
-      
+        # if self._meta is not None:
+        #     self._meta.write_public_meta(
+        #         os.path.join(self._root_dir,"processed", file_path)[:-3]
+        #         + "_meta.txt")
         main_file.dev = str(self.dev)
         main_file.resolution = self.resolution
         main_file.res_units = self.res_units
@@ -425,6 +427,22 @@ class Profile_Set():
                                                           ("time",))
                     mr_var[:] = thermo.mixing_ratio.magnitude
                     mr_var.units = str(thermo.mixing_ratio.units)
+                except Exception:
+                    continue
+                # POTENTIAL TEMPERATURE
+                try:
+                    theta_var = profile_group.createVariable("theta", "f8",
+                                                          ("time",))
+                    theta_var[:] = thermo.theta.magnitude
+                    theta_var.units = str(thermo.theta.units)
+                except Exception:
+                    continue
+                # DEWPOINT TEMPERATURE
+                try:
+                    dewp_var = profile_group.createVariable("T_d", "f8",
+                                                          ("time",))
+                    dewp_var[:] = thermo.T_d.magnitude
+                    dewp_var.units = str(thermo.T_d.units)
                 except Exception:
                     continue
                 # TIME
